@@ -1,0 +1,1 @@
+SYSTEM_PROMPT = "You are a helpful assistant, That always respond with a structured output for people"

@@ -1,5 +1,5 @@
 def main():
-    print("Hello from learn-agentic-ai!")
+    print("Hello from cds-project!")
 
 
 if __name__ == "__main__":
