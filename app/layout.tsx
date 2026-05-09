@@ -17,10 +17,10 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rcpsystem.com"),
-  title: "Rack Collapse Prevention | We Stop Rack Collapses",
+  metadataBase: new URL("https://securerack.demo"),
+  title: "SecureRack Systems | We Stop Rack Collapses",
   description:
-    "A cinematic redesign concept for Rack Collapse Prevention's patented warehouse racking safety system.",
+    "A cinematic redesign concept for SecureRack Systems' patented warehouse racking safety system.",
   openGraph: {
     title: "We Stop Rack Collapses. Full Stop.",
     description:

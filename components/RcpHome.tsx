@@ -40,7 +40,13 @@ gsap.registerPlugin(ScrollTrigger);
 const carouselDelay = 4000;
 
 function useAutoCarousel(slideCount: number, delay = carouselDelay) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    align: "center", 
+    loop: true,
+    duration: 50,
+    skipSnaps: false,
+    dragFree: false
+  });
   const [selected, setSelected] = useState(0);
   const [progressKey, setProgressKey] = useState(0);
   const timerRef = useRef<number | null>(null);
@@ -72,9 +78,11 @@ function useAutoCarousel(slideCount: number, delay = carouselDelay) {
 
     onSelect();
     emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
 
     return () => {
       emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
       if (timerRef.current) {
         window.clearInterval(timerRef.current);
       }
@@ -169,8 +177,8 @@ function Header() {
 
   return (
     <header className={`site-nav ${scrolled ? "site-nav--scrolled" : ""}`}>
-      <a className="site-nav__logo" href="#home" aria-label="Rack Collapse Prevention home">
-        <Image src="/images/logo-final.jpg" alt="RCP System" width={96} height={68} priority />
+      <a className="site-nav__logo" href="#home" aria-label="SecureRack Systems home">
+        <span className="text-logo">Secure<span className="text-gradient">Rack</span></span>
       </a>
 
       <nav className="site-nav__links" aria-label="Primary navigation">
@@ -181,9 +189,14 @@ function Header() {
         ))}
       </nav>
 
-      <a className="button button--nav" href="#quote">
-        Get a Quote
-      </a>
+      <div className="site-nav__actions">
+        <a className="button button--ghost button--nav" href="#demo">
+          Book a Demo
+        </a>
+        <a className="button button--nav" href="#quote">
+          Get a Quote
+        </a>
+      </div>
 
       <button
         className="icon-button site-nav__toggle"
@@ -209,10 +222,16 @@ function Header() {
               {link.label}
             </a>
           ))}
-          <a className="button button--primary" href="#quote" onClick={() => setOpen(false)}>
-            Get a Quote
-            <ArrowRight size={18} />
-          </a>
+          <div className="mobile-menu__actions">
+            <a className="button button--ghost" href="#demo" onClick={() => setOpen(false)}>
+              Book a Demo
+              <ArrowRight size={18} />
+            </a>
+            <a className="button button--primary" href="#quote" onClick={() => setOpen(false)}>
+              Get a Quote
+              <ArrowRight size={18} />
+            </a>
+          </div>
         </div>
       </div>
     </header>
@@ -222,15 +241,20 @@ function Header() {
 function Hero() {
   const [mediaMode, setMediaMode] = useState<"unknown" | "video" | "poster">("unknown");
   const [videoEnded, setVideoEnded] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  
   const useVideo = mediaMode === "video";
-    const contentReady = mediaMode === "poster" || videoEnded || useVideo;
+  const contentReady = mediaMode === "poster" || videoEnded || (useVideo && videoLoaded);
+
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 768px)");
     const update = () => {
       const nextMode = mediaQuery.matches ? "video" : "poster";
       setMediaMode(nextMode);
-      setVideoEnded(nextMode === "poster");
+      if (nextMode === "poster") {
+        setVideoEnded(true);
+      }
     };
     update();
     mediaQuery.addEventListener("change", update);
@@ -270,20 +294,29 @@ function Hero() {
           className="hero__video"
           autoPlay
           muted
-          playsInline loop preload="metadata" >
-          <source src="/media/final_hero.mp4" type="video/mp4" />
+          playsInline
+          preload="auto"
+          onCanPlay={() => setVideoLoaded(true)}
+          onEnded={() => {
+            if (videoRef.current) {
+              videoRef.current.pause();
+            }
+            setVideoEnded(true);
+          }}
+        >
+          <source src="/media/final.mp4" type="video/mp4" />
         </video>
       ) : null}
       <div className="hero__shade" />
       <div className="hero__grid" aria-hidden="true" />
       <div className="hero__content">
         <div className="hero__actions" data-hero-actions>
-          <a className="button button--primary" href="#quote">
-            Get a Free Quote
+          <a className="button button--primary" href="#demo">
+            Book a Virtual Demo
             <ArrowRight size={20} />
           </a>
-          <a className="button button--ghost" href="#how-it-works">
-            See How It Works
+          <a className="button button--ghost" href="#quote">
+            Get a Free Quote
             <ArrowRight size={20} />
           </a>
         </div>
@@ -301,7 +334,7 @@ function StatsStrip() {
         <p className="section-label">The Reality of Racking</p>
         <h2>Racking collapses aren&apos;t rare. They&apos;re inevitable - without protection.</h2>
         <p className="problem__intro">
-          The cost shows up in injured people, interrupted operations and lost stock. RCP is
+          The cost shows up in injured people, interrupted operations and lost stock. SecureRack is
           designed for the moment a routine impact becomes a business-critical risk.
         </p>
       </div>
@@ -338,7 +371,7 @@ function Solution() {
         <p className="section-label">Our Patented System</p>
         <h2>One System. <span className="text-gradient">Total Protection.</span></h2>
         <p>
-          UK designed and UK + European patented - the RCP System is the only proven
+          UK designed and UK + European patented - the SecureRack System is the only proven
           racking safety system to eliminate collapse. A network of precision steel cables
           and engineered brackets absorbs and redistributes impact energy before domino
           collapse can begin.
@@ -380,9 +413,9 @@ function StepsCarousel() {
         <div className="embla" ref={emblaRef}>
           <div className="embla__container">
             {steps.map((step, index) => {
-              const Icon = icons[index];
+              const Icon = icons[index % icons.length];
               return (
-                <article className="embla__slide step-card" key={step.title}>
+                <article className={`embla__slide step-card ${selected === index ? "is-selected" : ""}`} key={`${step.title}-${index}`}>
                   <div className="media-card__image" style={{ "--card-image": `url(${step.image})` } as React.CSSProperties} />
                   <div className="media-card__shade" />
                   <div className="step-card__content">
@@ -419,7 +452,7 @@ function StepsCarousel() {
 }
 
 function Environments() {
-  const { emblaRef, selected, scrollTo } = useAutoCarousel(environments.length, 5200);
+  const { emblaRef, selected, progressKey, scrollTo } = useAutoCarousel(environments.length, 5200);
 
   return (
     <section className="environments section" data-reveal>
@@ -434,7 +467,7 @@ function Environments() {
               className={`embla__slide environment-card environment-card--${item.accent} ${
                 selected === index ? "is-selected" : ""
               }`}
-              key={item.title}
+              key={`${item.title}-${index}`}
             >
               <div className="media-card__image" style={{ "--card-image": `url(${item.image})` } as React.CSSProperties} />
               <div className="media-card__shade" />
@@ -450,6 +483,9 @@ function Environments() {
             </article>
           ))}
         </div>
+      </div>
+      <div className="carousel-progress">
+        <span key={progressKey} style={{ animationDuration: "5200ms" }} />
       </div>
       <div className="carousel-dots">
         {environments.map((item, index) => (
@@ -467,7 +503,7 @@ function Environments() {
 }
 
 function Testimonials() {
-  const { emblaRef, selected, scrollPrev, scrollNext, scrollTo } = useAutoCarousel(testimonials.length, 6000);
+  const { emblaRef, selected, progressKey, scrollPrev, scrollNext, scrollTo } = useAutoCarousel(testimonials.length, 6000);
 
   return (
     <section className="testimonials section" id="testimonials" data-reveal>
@@ -482,7 +518,7 @@ function Testimonials() {
         <div className="embla embla--peek" ref={emblaRef}>
           <div className="embla__container">
             {testimonials.map((item, index) => (
-              <article className={`embla__slide testimonial-card ${selected === index ? "is-selected" : ""}`} key={item.client}>
+              <article className={`embla__slide testimonial-card ${selected === index ? "is-selected" : ""}`} key={`${item.client}-${index}`}>
                 <Quote className="testimonial-card__quote" size={62} aria-hidden="true" />
                 <div className="stars" aria-label="5 star rating">
                   {Array.from({ length: 5 }).map((_, index) => (
@@ -510,6 +546,9 @@ function Testimonials() {
         <button className="icon-button carousel-arrow carousel-arrow--right" onClick={scrollNext} aria-label="Next testimonial">
           <ChevronRight />
         </button>
+      </div>
+      <div className="carousel-progress">
+        <span key={progressKey} style={{ animationDuration: "6000ms" }} />
       </div>
       <div className="carousel-dots">
         {testimonials.map((item, index) => (
@@ -542,7 +581,13 @@ function CaseStudies() {
               {item.logo ? (
                 <Image src={item.logo} alt={`${item.title} logo`} width={112} height={52} />
               ) : (
-                <span>{item.logoLabel}</span>
+                <span className={item.logoLabel === "SecureRack" ? "text-logo text-logo--small" : ""}>
+                  {item.logoLabel === "SecureRack" ? (
+                    <>Secure<span className="text-gradient">Rack</span></>
+                  ) : (
+                    item.logoLabel
+                  )}
+                </span>
               )}
             </div>
             <div className="case-card__content">
@@ -556,7 +601,7 @@ function CaseStudies() {
           </a>
         ))}
       </div>
-      <a className="text-link text-link--center" href="https://rcpsystem.com/case-studies" target="_blank" rel="noreferrer">
+      <a className="text-link text-link--center" href="https://securerack.demo/case-studies" target="_blank" rel="noreferrer">
         View All Case Studies
         <ArrowRight size={18} />
       </a>
@@ -590,7 +635,7 @@ function NewsStrip() {
   return (
     <section className="news section" id="news" data-reveal>
       <div className="section-heading">
-        <p className="section-label">Latest from RCP</p>
+        <p className="section-label">Latest from SecureRack</p>
         <h2>Warehouse Safety, Updated.</h2>
       </div>
       <div className="news-grid">
@@ -606,6 +651,46 @@ function NewsStrip() {
             <time>{item.date}</time>
           </a>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function DemoSection() {
+  return (
+    <section className="demo-section section" id="demo" data-reveal>
+      <div className="section-heading">
+        <p className="section-label">Live Experience</p>
+        <h2>See SecureRack in Action.</h2>
+      </div>
+      <div className="demo-grid demo-grid--centered">
+        <div className="demo-content">
+          <h3>Book a Virtual Site Visit</h3>
+          <p>
+            Experience how SecureRack Systems integrates into your specific warehouse layout. 
+            Our engineers will walk you through a digital twin simulation of your facility.
+          </p>
+          <ul className="demo-features">
+            <li>
+              <ShieldCheck size={20} />
+              <span>Real-time impact simulation</span>
+            </li>
+            <li>
+              <Cable size={20} />
+              <span>Stress-test analysis for your racking type</span>
+            </li>
+            <li>
+              <ClipboardCheck size={20} />
+              <span>ROI and insurance premium calculation</span>
+            </li>
+          </ul>
+          <div className="demo-cta">
+            <a className="button button--primary" href="#quote">
+              Schedule My Demo
+              <ArrowRight size={20} />
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -640,7 +725,9 @@ function Footer() {
     <footer className="footer">
       <div className="footer__grid">
         <div>
-          <Image src="/images/logo-final.jpg" alt="RCP System" width={118} height={84} />
+          <div className="footer__logo">
+            <span className="text-logo">Secure<span className="text-gradient">Rack</span></span>
+          </div>
           <p className="footer__tagline">Protecting Workforces. Preserving Brands.</p>
           <ul className="footer__contact">
             <li>
@@ -653,7 +740,7 @@ function Footer() {
             </li>
             <li>
               <Mail size={18} />
-              <a href="mailto:lee@rcpsystem.com">lee@rcpsystem.com</a>
+              <a href="mailto:demo@securerack.demo">demo@securerack.demo</a>
             </li>
           </ul>
         </div>
@@ -664,6 +751,7 @@ function Footer() {
               "How It Works",
               "Our System",
               "Case Studies",
+              "Demo",
               "Testimonials",
               "Gallery",
               "Videos",
@@ -677,7 +765,7 @@ function Footer() {
           </div>
           <div className="footer__socials">
             <a
-              href="https://uk.linkedin.com/company/rack-collapse-prevention-limited"
+              href="https://uk.linkedin.com/company/securerack-systems"
               aria-label="LinkedIn"
               target="_blank"
               rel="noreferrer"
@@ -701,15 +789,15 @@ function Footer() {
         </div>
       </div>
       <div className="footer__bottom">
-        <p>© 2016-2026 Rack Collapse Prevention Ltd.</p>
+        <p>© 2016-2026 SecureRack Systems Ltd.</p>
         <div>
-          <a href="https://rcpsystem.com/privacy" target="_blank" rel="noreferrer">
+          <a href="https://securerack.demo/privacy" target="_blank" rel="noreferrer">
             Privacy
           </a>
-          <a href="https://rcpsystem.com/terms" target="_blank" rel="noreferrer">
+          <a href="https://securerack.demo/terms" target="_blank" rel="noreferrer">
             Terms
           </a>
-          <a href="https://rcpsystem.com/cookies" target="_blank" rel="noreferrer">
+          <a href="https://securerack.demo/cookies" target="_blank" rel="noreferrer">
             Cookies
           </a>
         </div>
@@ -718,7 +806,7 @@ function Footer() {
   );
 }
 
-export default function RcpHome() {
+export default function SecureRackHome() {
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -848,6 +936,7 @@ export default function RcpHome() {
         <Environments />
         <Testimonials />
         <CaseStudies />
+        <DemoSection />
         <WhitePaper />
         <NewsStrip />
         <QuoteSection />

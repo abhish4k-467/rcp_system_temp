@@ -1,5 +1,5 @@
-import RcpHome from "@/components/RcpHome";
+import SecureRackHome from "@/components/RcpHome";
 
 export default function Home() {
-  return <RcpHome />;
+  return <SecureRackHome />;
 }
