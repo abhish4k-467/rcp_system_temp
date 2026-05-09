@@ -240,36 +240,29 @@ function Header() {
 }
 
 function Hero() {
-  const [mediaMode, setMediaMode] = useState<"unknown" | "video" | "poster">("unknown");
   const [videoEnded, setVideoEnded] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
-  const useVideo = mediaMode === "video";
-  const contentReady = mediaMode === "poster" || videoEnded || (useVideo && videoLoaded);
+  const contentReady = videoEnded || videoLoaded;
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-    const update = () => {
-      const nextMode = mediaQuery.matches ? "video" : "poster";
-      setMediaMode(nextMode);
-      if (nextMode === "poster") {
-        setVideoEnded(true);
-      }
-    };
-    update();
-    mediaQuery.addEventListener("change", update);
-    return () => mediaQuery.removeEventListener("change", update);
+    const mql = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+    handler(mql);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
   }, []);
 
   useEffect(() => {
     const actions = document.querySelector<HTMLElement>("[data-hero-actions]");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const delay = reducedMotion ? 0 : useVideo ? 0.18 : 0.45;
+    const delay = reducedMotion ? 0 : 0.18;
 
     gsap.set(actions, { autoAlpha: 0, y: 18 });
 
-    if (mediaMode === "unknown" || !contentReady) {
+    if (!contentReady) {
       return undefined;
     }
 
@@ -284,30 +277,37 @@ function Hero() {
     return () => {
       timeline.kill();
     };
-  }, [contentReady, mediaMode, useVideo]);
+  }, [contentReady]);
 
   return (
     <section className={`hero ${contentReady ? "hero--content-ready" : ""}`} id="home">
       <div className="hero__poster" />
-      {useVideo ? (
-        <video
-          ref={videoRef}
-          className="hero__video"
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          onCanPlay={() => setVideoLoaded(true)}
-          onEnded={() => {
-            if (videoRef.current) {
-              videoRef.current.pause();
-            }
-            setVideoEnded(true);
-          }}
-        >
-          <source src="/media/final.mp4" type="video/mp4" />
-        </video>
-      ) : null}
+      <video
+        key={isMobile ? "mobile" : "desktop"}
+        ref={videoRef}
+        className="hero__video"
+        autoPlay
+        muted
+        playsInline
+        poster="/media/ezgif-frame-001.jpg"
+        preload="auto"
+        onCanPlay={() => setVideoLoaded(true)}
+        onEnded={() => {
+          if (videoRef.current) {
+            videoRef.current.pause();
+          }
+          setVideoEnded(true);
+        }}
+      >
+        {isMobile ? (
+          <source src="/media/really_final_mob.mp4" type="video/mp4" />
+        ) : (
+          <>
+            <source src="/media/final.webm" type="video/webm" />
+            <source src="/media/final.mp4" type="video/mp4" />
+          </>
+        )}
+      </video>
       <div className="hero__shade" />
       <div className="hero__grid" aria-hidden="true" />
       <div className="hero__content">

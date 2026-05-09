@@ -109,11 +109,11 @@ h3 {
 
 h2 {
   margin-bottom: 18px;
-  font-size: 64px;
+  font-size: clamp(32px, 5vw, 64px);
 }
 
 h3 {
-  font-size: 30px;
+  font-size: clamp(24px, 3vw, 30px);
 }
 
 p {
@@ -126,7 +126,7 @@ p {
 
 .section {
   position: relative;
-  padding: 140px max(24px, calc((100% - var(--max)) / 2));
+  padding: clamp(60px, 8vw, 140px) max(24px, calc((100% - var(--max)) / 2));
 }
 
 .section--wide {
@@ -136,7 +136,7 @@ p {
 
 .section-heading {
   width: min(820px, 100%);
-  margin: 0 auto 48px;
+  margin: 0 auto clamp(32px, 5vw, 48px);
   text-align: center;
 }
 
@@ -251,10 +251,10 @@ p {
   inset: 0 0 auto;
   z-index: 50;
   display: grid;
-  grid-template-columns: 150px 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 18px;
-  min-height: 84px;
+  gap: clamp(12px, 2vw, 24px);
+  min-height: clamp(64px, 8vw, 84px);
   padding: 12px max(24px, calc((100% - 1280px) / 2));
   border-bottom: 1px solid var(--glass-border);
   background: var(--glass);
@@ -452,7 +452,7 @@ p {
 
 .hero__actions {
   position: absolute;
-  bottom: 72px;
+  bottom: clamp(40px, 8vh, 80px);
   right: max(24px, calc((100% - var(--max)) / 2));
   left: max(24px, calc((100% - var(--max)) / 2));
   display: flex;
@@ -551,10 +551,10 @@ p {
 .stat-card {
   position: relative;
   display: flex;
-  flex: 0 0 clamp(340px, 30vw, 440px);
+  flex: 0 0 clamp(280px, 85vw, 440px);
   flex-direction: column;
   min-height: 236px;
-  padding: 30px;
+  padding: clamp(20px, 4vw, 30px);
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-top: 4px solid var(--amber);
   border-radius: var(--radius);
@@ -893,7 +893,7 @@ p {
   justify-content: flex-end;
   max-width: 520px;
   min-height: 470px;
-  padding: 44px;
+  padding: clamp(24px, 5vw, 44px);
 }
 
 .step-card__content > span {
@@ -910,7 +910,7 @@ p {
 
 .step-card h3 {
   margin-bottom: 12px;
-  font-size: 54px;
+  font-size: clamp(32px, 4vw, 54px);
 }
 
 .step-card p {
@@ -1020,7 +1020,7 @@ p {
   flex-direction: column;
   justify-content: flex-end;
   min-height: 520px;
-  padding: 42px;
+  padding: clamp(24px, 5vw, 42px);
 }
 
 .environment-card__content span {
@@ -1035,7 +1035,7 @@ p {
 
 .environment-card h3 {
   margin-bottom: 12px;
-  font-size: 76px;
+  font-size: clamp(40px, 6vw, 76px);
 }
 
 .environment-card p {
@@ -1077,7 +1077,7 @@ p {
 .testimonial-card {
   display: grid;
   min-height: 450px;
-  padding: 48px;
+  padding: clamp(24px, 5vw, 48px);
   border: 1px solid rgba(15, 23, 42, 0.22);
   border-radius: var(--radius);
   background:
@@ -1260,7 +1260,7 @@ p {
 
 .case-card__content h3 {
   margin-bottom: 24px;
-  font-size: 36px;
+  font-size: clamp(28px, 4vw, 36px);
 }
 
 .case-card__content p {
@@ -1717,7 +1717,9 @@ p {
   }
 
   .site-nav {
-    grid-template-columns: 120px 1fr auto;
+    grid-template-columns: auto 1fr auto;
+    min-height: 72px;
+    padding: 8px 18px;
   }
 
   .site-nav__links {
@@ -1749,15 +1751,32 @@ p {
 
 @media (max-width: 880px) {
   .site-nav {
-    grid-template-columns: 1fr auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 64px;
+    padding: 0 18px;
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  .site-nav__logo .text-logo {
+    font-size: 26px;
   }
 
   .site-nav__links,
-  .button--nav {
+  .site-nav__actions {
     display: none;
   }
 
-  .site-nav__toggle,
+  .site-nav__toggle {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
   .mobile-menu {
     display: inline-flex;
   }
@@ -1811,28 +1830,12 @@ p {
 
 @media (max-width: 767px) {
   .section {
-    padding: 76px 18px;
-  }
-
-  h2 {
-    font-size: 40px;
-  }
-
-  h3 {
-    font-size: 26px;
+    padding: clamp(50px, 8vw, 80px) 18px;
   }
 
   .hero {
     min-height: 100svh;
-    padding: 118px 18px 84px;
-  }
-
-  .stat-card {
-    flex-basis: 320px;
-  }
-
-  .stat-card strong {
-    font-size: 44px;
+    padding: clamp(80px, 12vh, 120px) 18px;
   }
 
   .diagram-panel {
@@ -1850,34 +1853,6 @@ p {
   .embla__slide,
   .carousel-shell--steps .embla__slide {
     flex-basis: 88vw;
-  }
-
-  .step-card,
-  .step-card__content {
-    min-height: 430px;
-  }
-
-  .step-card__content,
-  .environment-card__content,
-  .testimonial-card {
-    padding: 28px;
-  }
-
-  .step-card h3 {
-    font-size: 40px;
-  }
-
-  .environment-card h3 {
-    font-size: 48px;
-  }
-
-  .testimonial-card__footer {
-    align-items: flex-start;
-  }
-
-  .testimonial-card strong,
-  .testimonial-card span {
-    text-align: left;
   }
 
   .case-grid,
