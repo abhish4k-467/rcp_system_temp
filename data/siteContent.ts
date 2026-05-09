@@ -98,7 +98,16 @@ export const testimonials = [
   { quote: "A robust system backed by world-class engineering. SecureRack is the gold standard in racking safety.", client: "Vanguard Warehousing", person: "Operations VP", logoLabel: "Vanguard" }
 ];
 
-export const caseStudies = [
+export interface CaseStudy {
+  title: string;
+  impact: string;
+  image: string;
+  logo?: string;
+  logoLabel?: string;
+  href: string;
+}
+
+export const caseStudies: CaseStudy[] = [
   {
     title: "Harlech Foodservice",
     impact: "Frozen store protected across 300 racks",

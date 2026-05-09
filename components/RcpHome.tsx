@@ -25,6 +25,7 @@ import {
   Youtube
 } from "lucide-react";
 import {
+  CaseStudy,
   caseStudies,
   environments,
   features,
@@ -573,19 +574,19 @@ function CaseStudies() {
         <h2>Real Incidents. Real Protection.</h2>
       </div>
       <div className="case-grid">
-        {caseStudies.map((item) => (
+        {caseStudies.map((item: CaseStudy) => (
           <a className="case-card" href={item.href} key={item.title} target="_blank" rel="noreferrer">
             <div className="media-card__image" style={{ "--card-image": `url(${item.image})` } as React.CSSProperties} />
             <div className="media-card__shade" />
             <div className="case-card__logo">
-              {"logo" in item && item.logo ? (
-                <Image src={item.logo as string} alt={`${item.title} logo`} width={112} height={52} />
+              {item.logo ? (
+                <Image src={item.logo} alt={`${item.title} logo`} width={112} height={52} />
               ) : (
-                <span className={"logoLabel" in item && item.logoLabel === "SecureRack" ? "text-logo text-logo--small" : ""}>
-                  {"logoLabel" in item && item.logoLabel === "SecureRack" ? (
+                <span className={item.logoLabel === "SecureRack" ? "text-logo text-logo--small" : ""}>
+                  {item.logoLabel === "SecureRack" ? (
                     <>Secure<span className="text-gradient">Rack</span></>
                   ) : (
-                    (item as any).logoLabel
+                    item.logoLabel
                   )}
                 </span>
               )}
