@@ -578,14 +578,14 @@ function CaseStudies() {
             <div className="media-card__image" style={{ "--card-image": `url(${item.image})` } as React.CSSProperties} />
             <div className="media-card__shade" />
             <div className="case-card__logo">
-              {item.logo ? (
-                <Image src={item.logo} alt={`${item.title} logo`} width={112} height={52} />
+              {"logo" in item && item.logo ? (
+                <Image src={item.logo as string} alt={`${item.title} logo`} width={112} height={52} />
               ) : (
-                <span className={item.logoLabel === "SecureRack" ? "text-logo text-logo--small" : ""}>
-                  {item.logoLabel === "SecureRack" ? (
+                <span className={"logoLabel" in item && item.logoLabel === "SecureRack" ? "text-logo text-logo--small" : ""}>
+                  {"logoLabel" in item && item.logoLabel === "SecureRack" ? (
                     <>Secure<span className="text-gradient">Rack</span></>
                   ) : (
-                    item.logoLabel
+                    (item as any).logoLabel
                   )}
                 </span>
               )}
